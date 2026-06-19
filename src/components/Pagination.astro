@@ -1,0 +1,73 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  basePath: string;
+}
+
+const { currentPage, totalPages, basePath } = Astro.props;
+
+const windowSize = 2;
+const start = Math.max(1, currentPage - windowSize);
+const end = Math.min(totalPages, currentPage + windowSize);
+const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+---
+
+<nav class="flex items-center justify-center gap-1 mt-8 flex-wrap" aria-label="Pagination">
+  {currentPage > 1 && (
+    <a
+      href={`${basePath}/${currentPage - 1}`}
+      class="px-3 py-1.5 rounded text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 border border-gray-200"
+    >
+      ← Prev
+    </a>
+  )}
+
+  {start > 1 && (
+    <>
+      <a
+        href={`${basePath}/1`}
+        class="px-3 py-1.5 rounded text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 border border-gray-200"
+      >
+        1
+      </a>
+      {start > 2 && <span class="px-1 text-gray-400 text-sm">…</span>}
+    </>
+  )}
+
+  {pages.map(p => (
+    <a
+      href={`${basePath}/${p}`}
+      class:list={[
+        'px-3 py-1.5 rounded text-sm border',
+        p === currentPage
+          ? 'bg-orange-500 text-white border-orange-500 font-medium'
+          : 'text-gray-600 hover:bg-orange-50 hover:text-orange-600 border-gray-200',
+      ]}
+      aria-current={p === currentPage ? 'page' : undefined}
+    >
+      {p}
+    </a>
+  ))}
+
+  {end < totalPages && (
+    <>
+      {end < totalPages - 1 && <span class="px-1 text-gray-400 text-sm">…</span>}
+      <a
+        href={`${basePath}/${totalPages}`}
+        class="px-3 py-1.5 rounded text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 border border-gray-200"
+      >
+        {totalPages}
+      </a>
+    </>
+  )}
+
+  {currentPage < totalPages && (
+    <a
+      href={`${basePath}/${currentPage + 1}`}
+      class="px-3 py-1.5 rounded text-sm text-gray-600 hover:bg-orange-50 hover:text-orange-600 border border-gray-200"
+    >
+      Next →
+    </a>
+  )}
+</nav>

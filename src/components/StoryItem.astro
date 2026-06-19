@@ -1,0 +1,53 @@
+---
+import type { HNItem } from '@lib/types';
+import { getDomain, timeAgo } from '@lib/utils';
+
+interface Props {
+  story: HNItem;
+  rank: number;
+}
+
+const { story, rank } = Astro.props;
+const domain = story.url ? getDomain(story.url) : null;
+const isExternal = !!story.url;
+const storyHref = isExternal ? story.url! : `/item/${story.id}`;
+const commentsCount = story.descendants ?? 0;
+---
+
+<article class="flex gap-3 py-3 border-b border-gray-100 last:border-0">
+  <span class="text-gray-400 text-sm font-mono w-6 shrink-0 text-right pt-0.5">
+    {rank}.
+  </span>
+  <div class="min-w-0 flex-1">
+    <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+      <a
+        href={storyHref}
+        class="font-medium text-gray-900 hover:text-orange-500 leading-snug"
+        {...isExternal ? { rel: 'noopener noreferrer' } : {}}
+      >
+        {story.title}
+      </a>
+      {domain && (
+        <span class="text-xs text-gray-400 shrink-0">
+          ({domain})
+        </span>
+      )}
+    </div>
+    <div class="flex flex-wrap items-center gap-x-2 mt-1 text-xs text-gray-500">
+      {story.score !== undefined && (
+        <span class="text-orange-500 font-medium">{story.score} pts</span>
+      )}
+      {story.by && (
+        <span>
+          by <a href={`/user/${story.by}`} class="hover:text-orange-500">{story.by}</a>
+        </span>
+      )}
+      {story.time && <span>{timeAgo(story.time)}</span>}
+      {story.type !== 'job' && (
+        <a href={`/item/${story.id}`} class="hover:text-orange-500">
+          {commentsCount} comment{commentsCount === 1 ? '' : 's'}
+        </a>
+      )}
+    </div>
+  </div>
+</article>

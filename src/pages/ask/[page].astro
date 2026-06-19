@@ -1,0 +1,25 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import StoryList from '@components/StoryList.astro';
+import Pagination from '@components/Pagination.astro';
+import { getStoriesPage, PAGE_SIZE } from '@lib/api';
+import type { FeedType } from '@lib/types';
+
+const feed: FeedType = 'ask';
+const page = parseInt(Astro.params.page ?? '1', 10);
+
+if (isNaN(page) || page < 1) return Astro.redirect('/ask/1');
+
+const { stories, totalPages } = await getStoriesPage(feed, page);
+if (page > totalPages) return new Response(null, { status: 404 });
+
+Astro.response.headers.set('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+
+const startRank = (page - 1) * PAGE_SIZE + 1;
+---
+
+<BaseLayout title={`Ask HN — Page ${page}`}>
+  <h1 class="sr-only">Ask HN</h1>
+  <StoryList stories={stories} startRank={startRank} />
+  <Pagination currentPage={page} totalPages={totalPages} basePath="/ask" />
+</BaseLayout>

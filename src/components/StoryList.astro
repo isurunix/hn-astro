@@ -1,0 +1,17 @@
+---
+import type { HNItem } from '@lib/types';
+import StoryItem from './StoryItem.astro';
+
+interface Props {
+  stories: HNItem[];
+  startRank: number;
+}
+
+const { stories, startRank } = Astro.props;
+---
+
+<div class="divide-y divide-gray-100">
+  {stories.map((story, i) => (
+    <StoryItem story={story} rank={startRank + i} />
+  ))}
+</div>
