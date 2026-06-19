@@ -1,0 +1,48 @@
+---
+import type { ResolvedComment } from '@lib/types';
+import { timeAgo } from '@lib/utils';
+import { sanitize } from '@lib/sanitize';
+
+interface Props {
+  comment: ResolvedComment;
+  depth: number;
+}
+
+const { comment, depth } = Astro.props;
+const indentRem = depth * 1.25;
+const isDeleted = comment.deleted;
+const text = comment.text ? sanitize(comment.text) : '';
+---
+
+<div
+  class="comment-node"
+  style={`padding-left: ${indentRem}rem`}
+>
+  <div class:list={['border-l-2 pl-3 py-2', depth === 0 ? 'border-gray-200' : 'border-gray-100']}>
+    {isDeleted ? (
+      <p class="text-xs text-gray-400 italic">[deleted]</p>
+    ) : (
+      <>
+        <div class="flex items-center gap-2 mb-1.5">
+          <button
+            class="collapse-btn text-gray-400 hover:text-gray-600 text-xs leading-none select-none"
+            aria-expanded="true"
+            aria-label="Collapse comment"
+          >
+            [–]
+          </button>
+          <span class="text-xs text-gray-500">
+            {comment.by
+              ? <a href={`/user/${comment.by}`} class="font-medium text-gray-700 hover:text-orange-500">{comment.by}</a>
+              : <span class="italic">unknown</span>
+            }
+            {comment.time && <span class="ml-1">{timeAgo(comment.time)}</span>}
+          </span>
+        </div>
+        <div class="comment-body hn-text text-sm text-gray-800 leading-relaxed">
+          <Fragment set:html={text} />
+        </div>
+      </>
+    )}
+  </div>
+</div>

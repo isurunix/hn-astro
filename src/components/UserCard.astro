@@ -1,0 +1,42 @@
+---
+import type { HNUser } from '@lib/types';
+import { timeAgo } from '@lib/utils';
+import { sanitize } from '@lib/sanitize';
+
+interface Props {
+  user: HNUser;
+}
+
+const { user } = Astro.props;
+const about = user.about ? sanitize(user.about) : null;
+const submittedCount = user.submitted?.length ?? 0;
+---
+
+<div class="bg-white border border-gray-100 rounded-lg p-6 max-w-xl">
+  <h1 class="text-xl font-semibold mb-4">{user.id}</h1>
+  <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm mb-4">
+    <dt class="text-gray-500">Karma</dt>
+    <dd class="font-medium text-orange-500">{user.karma.toLocaleString()}</dd>
+    <dt class="text-gray-500">Member since</dt>
+    <dd class="text-gray-700">{timeAgo(user.created)}</dd>
+    {submittedCount > 0 && (
+      <>
+        <dt class="text-gray-500">Submissions</dt>
+        <dd>
+          <a
+            href={`https://news.ycombinator.com/submitted?id=${user.id}`}
+            rel="noopener noreferrer"
+            class="text-orange-600 hover:underline"
+          >
+            {submittedCount.toLocaleString()} items ↗
+          </a>
+        </dd>
+      </>
+    )}
+  </dl>
+  {about && (
+    <div class="hn-text text-sm text-gray-700 border-t border-gray-100 pt-4">
+      <Fragment set:html={about} />
+    </div>
+  )}
+</div>

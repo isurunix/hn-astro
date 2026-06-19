@@ -1,0 +1,73 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import CommentTree from '@components/CommentTree.astro';
+import { fetchItem, getCommentTree } from '@lib/api';
+import { getDomain, timeAgo } from '@lib/utils';
+import { sanitize } from '@lib/sanitize';
+
+const rawId = Astro.params.id;
+const id = parseInt(rawId ?? '', 10);
+
+if (isNaN(id)) return new Response(null, { status: 404 });
+
+const item = await fetchItem(id);
+
+if (!item || item.deleted || item.dead) return new Response(null, { status: 404 });
+
+// Comments navigate to their parent story
+if (item.type === 'comment') {
+  const parentId = item.parent ?? id;
+  return Astro.redirect(`/item/${parentId}`);
+}
+
+const domain = item.url ? getDomain(item.url) : null;
+const bodyText = item.text ? sanitize(item.text) : null;
+const resolved = await getCommentTree(item);
+
+Astro.response.headers.set('Cache-Control', 's-maxage=120, stale-while-revalidate=600');
+---
+
+<BaseLayout title={item.title ?? 'Story'}>
+  <article class="mb-8">
+    <h1 class="text-xl font-semibold leading-snug mb-1">
+      {item.url
+        ? <a href={item.url} rel="noopener noreferrer" class="hover:text-orange-500">{item.title}</a>
+        : item.title
+      }
+    </h1>
+    {domain && (
+      <p class="text-sm text-gray-400 mb-2">({domain})</p>
+    )}
+    <div class="flex flex-wrap gap-x-3 gap-y-1 text-sm text-gray-500">
+      {item.score !== undefined && (
+        <span class="text-orange-500 font-medium">{item.score} points</span>
+      )}
+      {item.by && (
+        <span>by <a href={`/user/${item.by}`} class="text-gray-700 hover:text-orange-500 font-medium">{item.by}</a></span>
+      )}
+      {item.time && <span>{timeAgo(item.time)}</span>}
+      {item.descendants !== undefined && (
+        <span>{item.descendants} comment{item.descendants === 1 ? '' : 's'}</span>
+      )}
+    </div>
+
+    {bodyText && (
+      <div class="hn-text mt-4 text-sm text-gray-800 leading-relaxed bg-white border border-gray-100 rounded-lg p-4">
+        <Fragment set:html={bodyText} />
+      </div>
+    )}
+  </article>
+
+  {resolved.children.length > 0 && (
+    <section aria-label="Comments">
+      <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+        Comments
+      </h2>
+      <CommentTree comments={resolved.children} />
+    </section>
+  )}
+
+  {resolved.children.length === 0 && item.type !== 'job' && (
+    <p class="text-sm text-gray-400 italic">No comments yet.</p>
+  )}
+</BaseLayout>

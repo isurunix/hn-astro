@@ -1,0 +1,17 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import UserCard from '@components/UserCard.astro';
+import { fetchUser } from '@lib/api';
+
+const { id } = Astro.params;
+if (!id) return new Response(null, { status: 404 });
+
+const user = await fetchUser(id);
+if (!user) return new Response(null, { status: 404 });
+
+Astro.response.headers.set('Cache-Control', 's-maxage=300, stale-while-revalidate=3600');
+---
+
+<BaseLayout title={`${id} — HN Profile`}>
+  <UserCard user={user} />
+</BaseLayout>

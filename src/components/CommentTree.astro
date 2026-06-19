@@ -1,0 +1,40 @@
+---
+import type { ResolvedComment } from '@lib/types';
+import Comment from './Comment.astro';
+
+interface Props {
+  comments: ResolvedComment[];
+  depth?: number;
+}
+
+const { comments, depth = 0 } = Astro.props;
+---
+
+{comments.map(c => (
+  <div class="comment-subtree">
+    <Comment comment={c} depth={depth} />
+    {c.children.length > 0 && (
+      <div class="comment-children">
+        <Astro.self comments={c.children} depth={depth + 1} />
+      </div>
+    )}
+  </div>
+))}
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.collapse-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const subtree = btn.closest<HTMLElement>('.comment-subtree');
+      if (!subtree) return;
+
+      const body = subtree.querySelector<HTMLElement>('.comment-body');
+      const children = subtree.querySelector<HTMLElement>('.comment-children');
+      const isCollapsed = btn.getAttribute('aria-expanded') === 'false';
+
+      if (body) body.hidden = !isCollapsed;
+      if (children) children.hidden = !isCollapsed;
+      btn.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
+      btn.textContent = isCollapsed ? '[–]' : '[+]';
+    });
+  });
+</script>
