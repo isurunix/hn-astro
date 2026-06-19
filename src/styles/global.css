@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-stone-50 text-gray-900 antialiased;
+  }
+
+  a {
+    @apply text-gray-900 hover:text-orange-500 transition-colors;
+  }
+
+  pre, code {
+    @apply font-mono text-sm;
+  }
+
+  /* HN comment HTML content */
+  .hn-text p {
+    @apply mb-3 last:mb-0;
+  }
+
+  .hn-text pre {
+    @apply bg-gray-100 rounded p-3 overflow-x-auto my-3 text-xs leading-relaxed;
+  }
+
+  .hn-text code {
+    @apply bg-gray-100 rounded px-1 py-0.5;
+  }
+
+  .hn-text a {
+    @apply text-orange-600 underline underline-offset-2;
+  }
+}

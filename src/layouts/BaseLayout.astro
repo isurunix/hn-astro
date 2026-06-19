@@ -1,0 +1,33 @@
+---
+import NavBar from '@components/NavBar.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'A modern Hacker News reader' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <NavBar />
+    <main class="flex-1 max-w-4xl mx-auto w-full px-4 py-6">
+      <slot />
+    </main>
+    <footer class="border-t border-gray-200 py-4">
+      <p class="text-center text-xs text-gray-400">
+        Data from the <a href="https://github.com/HackerNews/API" class="underline underline-offset-2">HN API</a>
+      </p>
+    </footer>
+  </body>
+</html>

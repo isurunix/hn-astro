@@ -1,0 +1,30 @@
+---
+const links = [
+  { href: '/top/1', label: 'Top', match: '/top' },
+  { href: '/new/1', label: 'New', match: '/new' },
+  { href: '/ask/1', label: 'Ask', match: '/ask' },
+  { href: '/show/1', label: 'Show', match: '/show' },
+  { href: '/jobs/1', label: 'Jobs', match: '/jobs' },
+];
+
+const path = Astro.url.pathname;
+---
+
+<header class="bg-orange-500 text-white shadow-sm">
+  <nav class="max-w-4xl mx-auto px-4 h-11 flex items-center gap-1">
+    <a href="/top/1" class="font-bold text-white mr-3 hover:text-orange-100 shrink-0">
+      HN
+    </a>
+    {links.map(({ href, label, match }) => (
+      <a
+        href={href}
+        class:list={[
+          'px-2 py-1 rounded text-sm font-medium transition-colors hover:bg-orange-400 hover:text-white',
+          path.startsWith(match) ? 'bg-orange-600 text-white' : 'text-orange-100',
+        ]}
+      >
+        {label}
+      </a>
+    ))}
+  </nav>
+</header>
